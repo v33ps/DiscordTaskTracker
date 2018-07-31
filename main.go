@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -59,14 +60,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	fmt.Println(m.Content)
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+	if strings.Contains(m.Content, "!tt ") {
+		fmt.Println(strings.Split(m.Content, "!tt ")[1])
+
+		// If the message is "ping" reply with "Pong!"
+		if strings.Split(m.Content, "!tt ")[1] == "ping" {
+			s.ChannelMessageSend(m.ChannelID, "Pong!")
+		}
+
+		// If the message is "pong" reply with "Ping!"
+		if strings.Split(m.Content, "!tt ")[1] == "pong" {
+			s.ChannelMessageSend(m.ChannelID, "Ping!")
+		}
 	}
 
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
 }
