@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"os/signal"
 	"strings"
-	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/olebedev/when"
+	"github.com/olebedev/when/rules/common"
+	"github.com/olebedev/when/rules/en"
 )
 
 // Variables used for command line parameters
@@ -22,33 +23,66 @@ func init() {
 	flag.Parse()
 }
 
+func stringInSlice(a string, list []string) string {
+	for _, b := range list {
+		if strings.Contains(a, b) {
+			return b
+		}
+	}
+	return ""
+}
+
 func main() {
-
-	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+	w := when.New(nil)
+	w.Add(en.All...)
+	w.Add(common.All...)
+	timezoneList := []string{"pst", "est", "zst"}
+	text := "8/3/2018 3pm pst"
+	timezone := stringInSlice(text, timezoneList)
+	fmt.Println(timezone)
+	r, err := w.Parse(text, time.Now())
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
-		return
+		// an error has occurred
+	}
+	if r == nil {
+		// no matches found
 	}
 
-	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(messageCreate)
+	fmt.Println(
+		"the time",
+		r.Time.String(),
+		"mentioned in",
+		text[r.Index:r.Index+len(r.Text)],
+	)
+	/*
+		t, err := dateparse.ParseAny("8/1/2018 1700")
+		fmt.Println(t)
+		// Create a new Discord session using the provided bot token.
+		dg, err := discordgo.New("Bot " + Token)
+		if err != nil {
+			fmt.Println("error creating Discord session,", err)
+			return
+		}
 
-	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
-	if err != nil {
-		fmt.Println("error opening connection,", err)
-		return
-	}
+		// Register the messageCreate func as a callback for MessageCreate events.
+		dg.AddHandler(messageCreate)
 
-	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+		// Open a websocket connection to Discord and begin listening.
+		err = dg.Open()
+		if err != nil {
+			fmt.Println("error opening connection,", err)
+			return
+		}
 
-	// Cleanly close down the Discord session.
-	dg.Close()
+		// Wait here until CTRL-C or other term signal is received.
+		fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+		sc := make(chan os.Signal, 1)
+		signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+		<-sc
+
+		// Cleanly close down the Discord session.
+		dg.Close()
+	*/
 }
 
 // This function will be called (due to AddHandler above) every time a new
