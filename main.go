@@ -27,27 +27,6 @@ func init() {
 }
 
 func main() {
-
-	w := when.New(nil)
-	w.Add(en.All...)
-	w.Add(common.All...)
-
-	text := "within 5 minutes"
-	r, err := w.Parse(text, time.Now())
-	if err != nil {
-		// an error has occurred
-	}
-	if r == nil {
-		// no matches found
-	}
-
-	fmt.Println(
-		"the time",
-		r.Time.String(),
-		"mentioned in",
-		text[r.Index:r.Index+len(r.Text)],
-	)
-
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
