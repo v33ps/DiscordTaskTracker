@@ -60,18 +60,16 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	if strings.Contains(m.Content, "!tt ") {
-		fmt.Println(strings.Split(m.Content, "!tt ")[1])
 
-		// If the message is "ping" reply with "Pong!"
-		if strings.Split(m.Content, "!tt ")[1] == "ping" {
-			s.ChannelMessageSend(m.ChannelID, "Pong!")
-		}
+	// extract the reminder time
+	if strings.Contains(m.Content, "!r ") {
+		message := strings.Split("Reminder set for: "+strings.Split(m.Content, "!r ")[1], " !t")[0]
+		s.ChannelMessageSend(m.ChannelID, message)
+	}
 
-		// If the message is "pong" reply with "Ping!"
-		if strings.Split(m.Content, "!tt ")[1] == "pong" {
-			s.ChannelMessageSend(m.ChannelID, "Ping!")
-		}
+	// extract the task
+	if strings.Contains(m.Content, "!t ") {
+		s.ChannelMessageSend(m.ChannelID, "Task is: "+strings.Split(m.Content, "!t ")[1])
 	}
 
 }
