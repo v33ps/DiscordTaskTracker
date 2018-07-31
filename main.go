@@ -7,8 +7,12 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/olebedev/when"
+	"github.com/olebedev/when/rules/common"
+	"github.com/olebedev/when/rules/en"
 )
 
 // Variables used for command line parameters
@@ -23,7 +27,6 @@ func init() {
 }
 
 func main() {
-
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
@@ -63,7 +66,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// extract the reminder time
 	if strings.Contains(m.Content, "!r ") {
-		message := strings.Split("Reminder set for: "+strings.Split(m.Content, "!r ")[1], " !t")[0]
+		var message string
+		reminderTime := getReminderTime(strings.Split(m.Content, "!r ")[1])
+		message = strings.Split("Reminder set for: "+reminderTime, " !t")[0]
 		s.ChannelMessageSend(m.ChannelID, message)
 	}
 
@@ -72,4 +77,30 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Task is: "+strings.Split(m.Content, "!t ")[1])
 	}
 
+}
+
+func getReminderTime(text string) string {
+	w := when.New(nil)
+	w.Add(en.All...)
+	w.Add(common.All...)
+	timezoneList := []string{"pst", "est", "gmt"}
+	timezone := findStringInList(text, timezoneList)
+
+	r, err := w.Parse(text, time.Now())
+	if err != nil {
+		// an error has occurred
+	}
+	if r == nil {
+		// no matches found
+	}
+	return r.Time.String() + " " + timezone
+}
+
+func findStringInList(a string, list []string) string {
+	for _, b := range list {
+		if strings.Contains(a, b) {
+			return b
+		}
+	}
+	return ""
 }
