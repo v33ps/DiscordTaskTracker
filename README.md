@@ -1,4 +1,4 @@
-#DiscordTaskTrackerBot
+# DiscordTaskTrackerBot
 This bot will get a task from a user with a reminder time, and remind the user in a private message when the time has been reached
 
 ## Example
