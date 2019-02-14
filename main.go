@@ -72,6 +72,7 @@ func main() {
 * @return		none
  */
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	helpMsg := "Help:\n!r 3 hour/s/minute/s/second/s this is the reminder time\n!t task"
 
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
@@ -80,14 +81,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// if we have a reminder time and a task, process the message and send a confirmation back
-	if strings.Contains(m.Content, "!r ") && strings.Contains(m.Content, "!t ") {
+	if strings.Contains(m.Content, "r: ") && strings.Contains(m.Content, "t: ") {
 		message := processMessage(m.Content, m.ChannelID)
 		s.ChannelMessageSend(m.ChannelID, message)
+	} else {
+		s.ChannelMessageSend(m.ChannelID, helpMsg)
 	}
 
 	// if the message doesn't conform to the proper format, send a help message to the user
-	if strings.Contains(m.Content, "!h") {
-		helpMsg := "Help:\n!r 3 hour/s/minute/s/second/s"
+	if strings.Contains(m.Content, "h:") {
 		s.ChannelMessageSend(m.ChannelID, helpMsg)
 	}
 }
@@ -111,16 +113,16 @@ func processMessage(content string, username string) string {
 	timeTypes := []string{"hour", "hours", "minute", "minutes", "second", "seconds"}
 
 	// gets the amount of time to remind on
-	timeType := findStringInList(strings.Split(content, "!r ")[1], timeTypes)
+	timeType := findStringInList(strings.Split(content, "r: ")[1], timeTypes)
 
 	if len(timeType) > 0 {
-		reminder = strings.Split(strings.Split(content, "!r ")[1], " !t")[0]
+		reminder = strings.Split(strings.Split(content, "r: ")[1], "t: ")[0]
 		message = "Reminder set for: " + reminder + "\n"
 	} else {
 		message = "[!] Incorrect reminder format. Enter !h for help"
 		return message
 	}
-	task = strings.Split(content, "!t ")[1]
+	task = strings.Split(content, "t: ")[1]
 	message = message + "Task is: " + task
 
 	// add to the waitgroup so we don't end before we have everything wrapped up
